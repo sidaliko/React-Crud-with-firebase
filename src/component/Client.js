@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { db } from "../firebase-config";
 import {
   collection,
@@ -13,7 +13,7 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import MenuItem from "@mui/material/MenuItem";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { DataGrid } from "@mui/x-data-grid";
 import { IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
@@ -29,7 +29,6 @@ function Client() {
   const [editStates, setEditStates] = useState({});
   // const [isEditable, setIsEditable] = useState(false);
   const [editLignes, setEditLignes] = useState(false);
-  const [editRowsModel, setEditRowsModel] = useState({});
   const clientsCollectionRef = collection(db, "clients");
 
   const [newNum, setNewNum] = useState();
@@ -46,6 +45,14 @@ function Client() {
     getClients();
   }, []);
 
+  useEffect(() => {
+    const getClients = async () => {
+      const data = await getDocs(clientsCollectionRef);
+      setClients(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+    };
+    getClients();
+  }, editLignes);
+
   const gender = [
     { value: "male", label: "♂" },
     {
@@ -61,7 +68,6 @@ function Client() {
       width: 250,
       sortable: false,
       description: "ID",
-      flex: 1,
     },
     {
       field: "num",
@@ -69,22 +75,14 @@ function Client() {
       type: Number,
       width: 120,
       editable: true,
-      flex: 1,
     },
     {
       field: "firstName",
       headerName: "First Name",
       width: 120,
       editable: true,
-      flex: 1,
     },
-    {
-      field: "lastName",
-      headerName: "Last Name",
-      width: 100,
-      editable: true,
-      flex: 1,
-    },
+    { field: "lastName", headerName: "Last Name", width: 100, editable: true },
 
     {
       field: "age",
@@ -93,7 +91,6 @@ function Client() {
       description: "Age",
       width: 100,
       editable: true,
-      flex: 1,
     },
     {
       field: "gender",
@@ -101,7 +98,6 @@ function Client() {
       description: "Gender",
       width: 120,
       editable: true,
-      flex: 1,
     },
     {
       field: "fullName",
@@ -109,7 +105,6 @@ function Client() {
       description: "This column has a value getter and is not sortable.",
       sortable: false,
       width: 200,
-      flex: 1,
       valueGetter: (params) =>
         `${params.row.firstName || ""} ${params.row.lastName || ""}`,
     },
@@ -118,8 +113,6 @@ function Client() {
       headerName: "Edit",
       width: 120,
       sortable: false,
-      flex: 1,
-      disableClickEventBubbling: true,
 
       renderCell: (params) =>
         editStates[params.row.id] === true ? (
@@ -141,8 +134,8 @@ function Client() {
         ) : (
           <IconButton
             aria-label={"edit"}
-            onClick={(e) => {
-              handleOpenEdit(e, params.id);
+            onClick={() => {
+              handleOpenEdit(params.row);
               // handleEditCell();
             }}
           >
@@ -157,7 +150,6 @@ function Client() {
       headerName: "Delete",
       width: 90,
       sortable: false,
-      flex: 1,
       renderCell: (params) => (
         <IconButton onClick={() => handleDelete(params.row.id)}>
           <DeleteIcon />
@@ -185,7 +177,7 @@ function Client() {
     }
   };
 
-  let rows = clients.map((client) => ({
+  const rows = clients.map((client) => ({
     ...client,
     id: client.id.toString(),
   }));
@@ -209,58 +201,30 @@ function Client() {
     setNewGender("");
   };
 
-  const handleOpenEdit = useCallback((e, id) => {
-    setEditStates((prev) => ({ ...prev, [id]: true }));
-    e.stopPropagation();
-    setEditRowsModel((prevEditRowsModel) => ({
-      ...prevEditRowsModel,
-      [id]: { ...prevEditRowsModel[id], isEditing: true },
-    }));
-  }, []);
-
-  const handleEditRowModelChange = useCallback((newModel) => {
-    setEditRowsModel(newModel);
-  }, []);
-
+  const handleOpenEdit = (row) => {
+    setEditStates((prev) => ({ ...prev, [row.id]: true }));
+  };
   const handleCloseEdit = (row) => {
     setEditStates((prev) => ({ ...prev, [row.id]: false }));
   };
 
-  const handleConfirmEdit = async (row) => {
+  const handleConfirmEdit = (row) => {
     setEditStates((prev) => ({ ...prev, [row.id]: false }));
+    console.log(row);
 
     const docReff = doc(db, "clients", row.id);
-    await updateDoc(docReff, {
+    updateDoc(docReff, {
       num: row.num,
       firstName: row.firstName,
       lastName: row.lastName,
       age: row.age,
       gender: row.gender,
-    })
-      .then(() => {
-        console.log(row);
-        // Update the rows array with the new data
-        // Create a new rows array with the updated row data
-        const newRows = rows.map((r) => {
-          if (r.id === row.id) {
-            return {
-              ...r,
-              num: row.num,
-              firstName: row.firstName,
-              lastName: row.lastName,
-              age: row.age,
-              gender: row.gender,
-            };
-          }
-          return r;
-        });
-
-        // Replace the existing rows array with the new one
-        rows.splice(0, rows.length, ...newRows);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    }).then(() => {
+      console.log("row updated");
+    });
+    setEditStates((prev) => ({ ...prev, [row.id]: false }));
+    setEditLignes(true);
+    console.log(editStates);
   };
 
   return (
@@ -268,11 +232,7 @@ function Client() {
       <Box
         component="form"
         sx={{
-          "& > :not(style)": {
-            m: 1,
-            width: "24ch",
-            marginTop: "20px",
-          },
+          "& > :not(style)": { m: 1, width: "25ch", marginTop: "20px" },
         }}
         noValidate
         autoComplete="off"
@@ -346,13 +306,10 @@ function Client() {
           columns={columns}
           pageSize={5}
           rowsPerPageOptions={[5]}
+          checkboxSelection
           pagination
-          editMode="row"
-          autoHeight
+          editMode="cell"
           disableSelectionOnClick
-          components={{
-            Toolbar: GridToolbar,
-          }}
         />
       </div>
     </Fragment>
