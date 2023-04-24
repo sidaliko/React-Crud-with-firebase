@@ -12,17 +12,21 @@ import {
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 import { Fragment } from "react";
+import { updateDoc } from "firebase/firestore";
 
 import CancelIcon from "@mui/icons-material/Cancel";
 
 import { Edit as EditIcon, Check as CheckIcon } from "@mui/icons-material";
 function Product() {
   const [products, setProducts] = useState([]);
+
+  const [editStates, setEditStates] = useState({});
+  const [editLignes, setEditLignes] = useState(false);
   const productsCollectionRef = collection(db, "products");
 
   const [newCode, setNewCode] = useState("");
@@ -43,6 +47,7 @@ function Product() {
       width: 250,
       description: "Product ID",
       sortable: false,
+      flex: 1,
     },
     {
       field: "code",
@@ -50,18 +55,23 @@ function Product() {
       width: 120,
       sortable: false,
       description: "Product Code",
+      editable: true,
+      flex: 1,
     },
     {
       field: "price",
       headerName: "Price",
       width: 120,
       description: "Product Price",
+      editable: true,
+      flex: 1,
     },
     {
       field: "edit",
       headerName: "Edit",
       width: 120,
       sortable: false,
+      flex: 1,
       renderCell: (params) =>
         editStates[params.row.id] === true ? (
           <>
@@ -95,6 +105,7 @@ function Product() {
       headerName: "Delete",
       width: 120,
       sortable: false,
+      flex: 1,
       renderCell: (params) => (
         <IconButton
           aria-label="delete"
@@ -123,7 +134,6 @@ function Product() {
     setNewCode("");
     setNewPrice("");
   };
-  const [editStates, setEditStates] = useState({});
 
   const handleOpenEdit = (row) => {
     setEditStates((prev) => ({ ...prev, [row.id]: true }));
@@ -134,6 +144,11 @@ function Product() {
 
   const handleConfirmEdit = (row) => {
     setEditStates((prev) => ({ ...prev, [row.id]: false }));
+    setEditLignes(true);
+    console.log(row);
+
+    const docReff = doc(db, "products", row.id);
+    updateDoc(docReff, { code: row.code, price: row.price });
   };
 
   const handleDelete = async (id) => {
@@ -141,7 +156,7 @@ function Product() {
       "Are you sure you want to delete this invoice?"
     );
     if (confirmed) {
-      const docRef = doc(db, "product", id);
+      const docRef = doc(db, "products", id);
       deleteDoc(docRef)
         .then(() => {
           setProducts((prevProducts) =>
@@ -198,7 +213,9 @@ function Product() {
           columns={columns}
           pageSize={5}
           rowsPerPageOptions={[5]}
-          checkboxSelection
+          components={{
+            Toolbar: GridToolbar,
+          }}
         />
       </div>
     </Fragment>

@@ -13,7 +13,7 @@ import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import Box from "@mui/material/Box";
 
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { IconButton } from "@mui/material";
 
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -63,25 +63,35 @@ function Invoice() {
       width: 250,
       description: "Invoice ID",
       sortable: false,
+      flex: 1,
     },
-    { field: "key", headerName: "Key", width: 120, description: "Invoice Key" },
+    {
+      field: "key",
+      headerName: "Key",
+      width: 120,
+      description: "Invoice Key",
+      flex: 1,
+    },
     {
       field: "cost",
       headerName: "Cost",
       width: 120,
       description: "Invoice Cost",
+      flex: 1,
     },
     {
       field: "numCli",
       headerName: "Client Number",
       width: 120,
       description: "Client Number",
+      flex: 1,
     },
     {
       field: "edit",
       headerName: "Edit",
       width: 120,
       sortable: false,
+      flex: 1,
       renderCell: (params) =>
         editStates[params.row.id] === true ? (
           <>
@@ -114,6 +124,7 @@ function Invoice() {
       headerName: "Delete",
       width: 120,
       sortable: false,
+      flex: 1,
       renderCell: (params) => (
         <IconButton
           aria-label="delete"
@@ -143,7 +154,7 @@ function Invoice() {
       "Are you sure you want to delete this invoice?"
     );
     if (confirmed) {
-      const docRef = doc(db, "invoice", id);
+      const docRef = doc(db, "invoices", id);
       deleteDoc(docRef)
         .then(() => {
           setInvoices((prevInvoices) =>
@@ -240,7 +251,9 @@ function Invoice() {
           columns={columns}
           pageSize={5}
           rowsPerPageOptions={[5]}
-          checkboxSelection
+          components={{
+            Toolbar: GridToolbar,
+          }}
         ></DataGrid>
       </div>
     </Fragment>

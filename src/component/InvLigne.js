@@ -15,7 +15,7 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { IconButton } from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -120,18 +120,21 @@ function InvLigne() {
       width: 250,
       description: "ID",
       sortable: false,
+      flex: 1,
     },
     {
       field: "invoiceKey",
       headerName: "Invoice Key",
       width: 120,
       type: "number",
+      flex: 1,
     },
     {
       field: "productCode",
       headerName: "Product Code",
       width: 120,
       type: "number",
+      flex: 1,
     },
     {
       field: "quantity",
@@ -139,6 +142,7 @@ function InvLigne() {
       width: 120,
       type: "number",
       description: "Qauntity of product in invoice",
+      flex: 1,
     },
     {
       field: "cost",
@@ -146,6 +150,7 @@ function InvLigne() {
       sortable: false,
       description: "Cost",
       width: 200,
+      flex: 1,
       renderCell: (params) =>
         `${products[params.row.productCode] * params.row.quantity}`,
     },
@@ -154,6 +159,7 @@ function InvLigne() {
       headerName: "Edit",
       width: 120,
       sortable: false,
+      flex: 1,
       renderCell: (params) =>
         editStates[params.row.id] === true ? (
           <>
@@ -187,6 +193,7 @@ function InvLigne() {
       headerName: "Delete",
       width: 120,
       sortable: false,
+      flex: 1,
       renderCell: (params) => (
         <IconButton
           aria-label="delete"
@@ -305,7 +312,9 @@ function InvLigne() {
           columns={columns}
           pageSize={5}
           rowsPerPageOptions={[5]}
-          checkboxSelection
+          components={{
+            Toolbar: GridToolbar,
+          }}
         />
       </div>
     </Fragment>
