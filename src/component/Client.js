@@ -1,25 +1,25 @@
-import { useState, useEffect, useRef } from "react";
-import { db } from "../firebase-config";
 import {
-  collection,
-  getDocs,
   addDoc,
+  collection,
   deleteDoc,
   doc,
+  getDocs,
   updateDoc,
 } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { db } from "../firebase-config";
 
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
-import MenuItem from "@mui/material/MenuItem";
-import { DataGrid } from "@mui/x-data-grid";
-import { IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { IconButton } from "@mui/material";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import MenuItem from "@mui/material/MenuItem";
+import TextField from "@mui/material/TextField";
+import { DataGrid } from "@mui/x-data-grid";
 
 import CancelIcon from "@mui/icons-material/Cancel";
 
-import { Edit as EditIcon, Check as CheckIcon } from "@mui/icons-material";
+import { Check as CheckIcon, Edit as EditIcon } from "@mui/icons-material";
 
 import { Fragment } from "react";
 
@@ -117,20 +117,24 @@ function Client() {
       headerName: "Edit",
       width: 120,
       sortable: false,
+
       flex: 1,
 
-      renderCell: (params) =>
-        editStates[params.row.id] === true ? (
+      renderCell: (params) => {
+        // const isEdit = theRef.current.getRowMode(params.id) === "edit";
+        return editStates[params.row.id] === true ? (
           <>
             <IconButton
-              aria-label={"edit"}
-              onClick={() => handleConfirmEdit(params.row)}
+              aria-label={"confirm"}
+              onClick={() => {
+                handleConfirmEdit(params.row);
+              }}
               sx={{ cursor: "pointer" }}
             >
               <CheckIcon />
             </IconButton>
             <IconButton
-              aria-label={"edit"}
+              aria-label={"close"}
               onClick={() => handleCloseEdit(params.row)}
             >
               <CancelIcon />
@@ -145,7 +149,8 @@ function Client() {
           >
             <EditIcon />
           </IconButton>
-        ),
+        );
+      },
     },
 
     // handleDeleteRows
@@ -182,10 +187,10 @@ function Client() {
     }
   };
 
-  const rows = clients.map((client) => ({
-    ...client,
-    id: client.id.toString(),
-  }));
+  // const rows = clients.map((client) => ({
+  //   ...client,
+  //   id: client.id.toString(),
+  // }));
 
   const addClient = async () => {
     await addDoc(clientsCollectionRef, {
@@ -198,7 +203,6 @@ function Client() {
 
     const data = await getDocs(clientsCollectionRef);
     setClients(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-
     setNewNum("");
     setNewFN("");
     setNewLN("");
@@ -307,7 +311,7 @@ function Client() {
 
       <div style={{ height: 400, width: "100%" }}>
         <DataGrid
-          rows={rows}
+          rows={clients}
           columns={columns}
           pageSize={5}
           rowsPerPageOptions={[5]}
