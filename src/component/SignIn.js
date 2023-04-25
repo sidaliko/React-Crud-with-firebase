@@ -45,6 +45,7 @@ const theme = createTheme();
 export default function SignIn(props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
 
   const handleSignup = (e) => {
     e.preventDefault();
@@ -62,8 +63,7 @@ export default function SignIn(props) {
         // ...
       })
       .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
+        handleError(error);
         // ..
       });
   };
@@ -84,9 +84,38 @@ export default function SignIn(props) {
         // ...
       })
       .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
+        handleError(error);
       });
+  };
+  function isValidEmail(email) {
+    // Use a regular expression to validate the email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  function isValidPassword(password) {
+    return password.length >= 8;
+  }
+
+  const handleError = () => {
+    if (!email) {
+      setError("Please enter your email address");
+      return;
+    }
+    if (!isValidEmail(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+    if (!password) {
+      setError("Please enter your password");
+      return;
+    }
+    if (!isValidPassword(password)) {
+      setError("Please enter a password with at least 8 characters");
+      return;
+    } else {
+      setError("Invalid email or password");
+    }
   };
 
   return (
@@ -135,6 +164,15 @@ export default function SignIn(props) {
               autoComplete="current-password"
               onChange={(e) => setPassword(e.target.value)}
             />
+
+            {error && (
+              <Box
+                component="span"
+                sx={{ display: "block", color: "red", textAlign: "center" }}
+              >
+                {error}
+              </Box>
+            )}
 
             <Button
               type="submit"
