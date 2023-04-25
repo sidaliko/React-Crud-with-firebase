@@ -68,6 +68,7 @@ function Client() {
       width: 250,
       sortable: false,
       description: "ID",
+      flex: 1,
     },
     {
       field: "num",
@@ -75,14 +76,22 @@ function Client() {
       type: Number,
       width: 120,
       editable: true,
+      flex: 1,
     },
     {
       field: "firstName",
       headerName: "First Name",
       width: 120,
       editable: true,
+      flex: 1,
     },
-    { field: "lastName", headerName: "Last Name", width: 100, editable: true },
+    {
+      field: "lastName",
+      headerName: "Last Name",
+      width: 100,
+      editable: true,
+      flex: 1,
+    },
 
     {
       field: "age",
@@ -91,6 +100,7 @@ function Client() {
       description: "Age",
       width: 100,
       editable: true,
+      flex: 1,
     },
     {
       field: "gender",
@@ -98,6 +108,7 @@ function Client() {
       description: "Gender",
       width: 120,
       editable: true,
+      flex: 1,
     },
     {
       field: "fullName",
@@ -105,6 +116,7 @@ function Client() {
       description: "This column has a value getter and is not sortable.",
       sortable: false,
       width: 200,
+      flex: 1,
       valueGetter: (params) =>
         `${params.row.firstName || ""} ${params.row.lastName || ""}`,
     },
@@ -113,6 +125,7 @@ function Client() {
       headerName: "Edit",
       width: 120,
       sortable: false,
+      flex: 1,
 
       renderCell: (params) =>
         editStates[params.row.id] === true ? (
@@ -150,6 +163,7 @@ function Client() {
       headerName: "Delete",
       width: 90,
       sortable: false,
+      flex: 1,
       renderCell: (params) => (
         <IconButton onClick={() => handleDelete(params.row.id)}>
           <DeleteIcon />
