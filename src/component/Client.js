@@ -45,14 +45,6 @@ function Client() {
     getClients();
   }, []);
 
-  useEffect(() => {
-    const getClients = async () => {
-      const data = await getDocs(clientsCollectionRef);
-      setClients(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-    };
-    getClients();
-  }, editLignes);
-
   const gender = [
     { value: "male", label: "♂" },
     {
@@ -149,7 +141,6 @@ function Client() {
             aria-label={"edit"}
             onClick={() => {
               handleOpenEdit(params.row);
-              // handleEditCell();
             }}
           >
             <EditIcon />

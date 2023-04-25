@@ -1,0 +1,6 @@
+.showback {
+  background-image: url("./imgs/hero.png");
+  background-size: cover;
+  background-size: center;
+  height: 100vh;
+}

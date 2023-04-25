@@ -21,7 +21,9 @@ function Bar({ onItemClick }, props) {
               component={StyledLink}
               to="/SignIn"
               color="inherit"
-              onClick={() => onItemClick("LogOut")}
+              onClick={() => {
+                onItemClick("LogOut");
+              }}
             >
               Log Out
             </Button>
