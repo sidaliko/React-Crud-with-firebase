@@ -1,9 +1,6 @@
-import { BrowserRouter as Router, Route, Link, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Link } from "react-router-dom";
 import { AppBar, Toolbar, Typography, Button } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { signOut } from "firebase/auth";
-
-import { auth } from "../firebase-config";
 
 const StyledLink = styled(Link)({
   color: "inherit",

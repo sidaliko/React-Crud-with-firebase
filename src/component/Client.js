@@ -27,8 +27,6 @@ function Client() {
   const [clients, setClients] = useState([]);
 
   const [editStates, setEditStates] = useState({});
-  // const [isEditable, setIsEditable] = useState(false);
-  const [editLignes, setEditLignes] = useState(false);
   const clientsCollectionRef = collection(db, "clients");
 
   const [newNum, setNewNum] = useState();
@@ -67,21 +65,23 @@ function Client() {
       headerName: "Client Number",
       type: Number,
       width: 120,
-      editable: true,
+      editable: (params) =>
+        editStates[params.row.id] !== false && params.field === "num",
+
       flex: 1,
     },
     {
       field: "firstName",
       headerName: "First Name",
       width: 120,
-      editable: true,
+
       flex: 1,
     },
     {
       field: "lastName",
       headerName: "Last Name",
       width: 100,
-      editable: true,
+
       flex: 1,
     },
 
@@ -91,7 +91,7 @@ function Client() {
       type: "number",
       description: "Age",
       width: 100,
-      editable: true,
+
       flex: 1,
     },
     {
@@ -99,7 +99,7 @@ function Client() {
       headerName: "Gender",
       description: "Gender",
       width: 120,
-      editable: true,
+
       flex: 1,
     },
     {
@@ -119,6 +119,9 @@ function Client() {
       sortable: false,
 
       flex: 1,
+
+      disableColumnMenu: true,
+      disableClickEventBubbling: true,
 
       renderCell: (params) => {
         // const isEdit = theRef.current.getRowMode(params.id) === "edit";
@@ -187,11 +190,6 @@ function Client() {
     }
   };
 
-  // const rows = clients.map((client) => ({
-  //   ...client,
-  //   id: client.id.toString(),
-  // }));
-
   const addClient = async () => {
     await addDoc(clientsCollectionRef, {
       num: newNum,
@@ -210,16 +208,25 @@ function Client() {
     setNewGender("");
   };
 
-  const handleOpenEdit = (row) => {
-    setEditStates((prev) => ({ ...prev, [row.id]: true }));
+  const handleOpenEdit = async (row) => {
+    const newEditStates = {};
+    clients.forEach((client) => {
+      newEditStates[client.id] = client.id === row.id;
+    });
+    setEditStates(newEditStates);
+    // setEditStates({ [row.id]: true });
+    console.log(editStates);
   };
   const handleCloseEdit = (row) => {
-    setEditStates((prev) => ({ ...prev, [row.id]: false }));
+    setEditStates(() => ({ [row.id]: false }));
+    console.log(editStates);
+    console.log(editStates);
   };
 
   const handleConfirmEdit = (row) => {
-    setEditStates((prev) => ({ ...prev, [row.id]: false }));
-    console.log(row);
+    setEditStates(() => ({ [row.id]: false }));
+    console.log(editStates);
+    console.log(editStates);
 
     const docReff = doc(db, "clients", row.id);
     updateDoc(docReff, {
@@ -228,12 +235,7 @@ function Client() {
       lastName: row.lastName,
       age: row.age,
       gender: row.gender,
-    }).then(() => {
-      console.log("row updated");
-    });
-    setEditStates((prev) => ({ ...prev, [row.id]: false }));
-    setEditLignes(true);
-    console.log(editStates);
+    }).then(() => {});
   };
 
   return (
@@ -315,9 +317,8 @@ function Client() {
           columns={columns}
           pageSize={5}
           rowsPerPageOptions={[5]}
-          checkboxSelection
           pagination
-          editMode="cell"
+          editMode="row"
           disableSelectionOnClick
         />
       </div>

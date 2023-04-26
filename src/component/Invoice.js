@@ -6,6 +6,7 @@ import {
   addDoc,
   deleteDoc,
   doc,
+  updateDoc,
 } from "firebase/firestore";
 
 import Button from "@mui/material/Button";
@@ -13,7 +14,7 @@ import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import Box from "@mui/material/Box";
 
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { DataGrid } from "@mui/x-data-grid";
 import { IconButton } from "@mui/material";
 
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -27,7 +28,6 @@ function Invoice() {
   const [invoices, setInvoices] = useState([]);
   const [clients, setClients] = useState([]);
   const invoicesCollectionRef = collection(db, "invoices");
-  const clientsCollectionRef = collection(db, "clients");
 
   const [newKey, setNewKey] = useState("");
   const [newCost, setNewCost] = useState();
@@ -39,14 +39,6 @@ function Invoice() {
       setInvoices(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
     };
     getInvoices();
-  }, []);
-
-  useEffect(() => {
-    const getClients = async () => {
-      const data = await getDocs(clientsCollectionRef);
-      setClients(data.docs.map((doc) => doc.data().num));
-    };
-    getClients();
   }, []);
 
   const [selectedOption, setSelectedOption] = useState("");
@@ -64,6 +56,7 @@ function Invoice() {
       description: "Invoice ID",
       sortable: false,
       flex: 1,
+      editable: true,
     },
     {
       field: "key",
@@ -71,6 +64,7 @@ function Invoice() {
       width: 120,
       description: "Invoice Key",
       flex: 1,
+      editable: true,
     },
     {
       field: "cost",
@@ -78,6 +72,7 @@ function Invoice() {
       width: 120,
       description: "Invoice Cost",
       flex: 1,
+      editable: true,
     },
     {
       field: "numCli",
@@ -85,6 +80,7 @@ function Invoice() {
       width: 120,
       description: "Client Number",
       flex: 1,
+      editable: true,
     },
     {
       field: "edit",
@@ -92,6 +88,7 @@ function Invoice() {
       width: 120,
       sortable: false,
       flex: 1,
+
       renderCell: (params) =>
         editStates[params.row.id] === true ? (
           <>
@@ -139,14 +136,21 @@ function Invoice() {
   const [editStates, setEditStates] = useState({});
 
   const handleOpenEdit = (row) => {
-    setEditStates((prev) => ({ ...prev, [row.id]: true }));
+    setEditStates(() => ({ [row.id]: true }));
   };
   const handleCloseEdit = (row) => {
-    setEditStates((prev) => ({ ...prev, [row.id]: false }));
+    setEditStates(() => ({ [row.id]: false }));
   };
 
   const handleConfirmEdit = (row) => {
-    setEditStates((prev) => ({ ...prev, [row.id]: false }));
+    setEditStates(() => ({ [row.id]: false }));
+
+    const docReff = doc(db, "invoices", row.id);
+    updateDoc(docReff, {
+      key: row.key,
+      cost: row.cost,
+      numCli: row.numCli,
+    }).then(() => {});
   };
 
   const handleDelete = async (id) => {
@@ -167,11 +171,6 @@ function Invoice() {
         });
     }
   };
-
-  const rows = invoices.map((invoice) => ({
-    ...invoice,
-    id: invoice.id.toString(),
-  }));
 
   const addInvoice = async () => {
     await addDoc(invoicesCollectionRef, {
@@ -247,13 +246,13 @@ function Invoice() {
 
       <div style={{ height: 400, width: "100%" }}>
         <DataGrid
-          rows={rows}
+          rows={invoices}
           columns={columns}
           pageSize={5}
           rowsPerPageOptions={[5]}
-          components={{
-            Toolbar: GridToolbar,
-          }}
+          pagination
+          editMode="cell"
+          disableSelectionOnClick
         ></DataGrid>
       </div>
     </Fragment>

@@ -12,7 +12,7 @@ import {
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { DataGrid } from "@mui/x-data-grid";
 import { IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
@@ -26,7 +26,6 @@ function Product() {
   const [products, setProducts] = useState([]);
 
   const [editStates, setEditStates] = useState({});
-  const [editLignes, setEditLignes] = useState(false);
   const productsCollectionRef = collection(db, "products");
 
   const [newCode, setNewCode] = useState("");
@@ -117,11 +116,6 @@ function Product() {
     },
   ];
 
-  const rows = products.map((product) => ({
-    ...product,
-    id: product.id.toString(),
-  }));
-
   const addProduct = async () => {
     await addDoc(productsCollectionRef, {
       code: newCode,
@@ -136,16 +130,14 @@ function Product() {
   };
 
   const handleOpenEdit = (row) => {
-    setEditStates((prev) => ({ ...prev, [row.id]: true }));
+    setEditStates(() => ({ [row.id]: true }));
   };
   const handleCloseEdit = (row) => {
-    setEditStates((prev) => ({ ...prev, [row.id]: false }));
+    setEditStates(() => ({ [row.id]: false }));
   };
 
   const handleConfirmEdit = (row) => {
-    setEditStates((prev) => ({ ...prev, [row.id]: false }));
-    setEditLignes(true);
-    console.log(row);
+    setEditStates(() => ({ [row.id]: false }));
 
     const docReff = doc(db, "products", row.id);
     updateDoc(docReff, { code: row.code, price: row.price });
@@ -209,13 +201,13 @@ function Product() {
 
       <div style={{ height: 400, width: "100%" }}>
         <DataGrid
-          rows={rows}
+          rows={products}
           columns={columns}
           pageSize={5}
           rowsPerPageOptions={[5]}
-          components={{
-            Toolbar: GridToolbar,
-          }}
+          pagination
+          editMode="cell"
+          disableSelectionOnClick
         />
       </div>
     </Fragment>

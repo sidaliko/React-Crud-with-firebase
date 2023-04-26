@@ -7,6 +7,7 @@ import {
   addDoc,
   deleteDoc,
   doc,
+  updateDoc,
 } from "firebase/firestore";
 
 import { useState, useEffect, Fragment } from "react";
@@ -126,15 +127,17 @@ function InvLigne() {
       field: "invoiceKey",
       headerName: "Invoice Key",
       width: 120,
-      type: "number",
+
       flex: 1,
+      editable: true,
     },
     {
       field: "productCode",
       headerName: "Product Code",
       width: 120,
-      type: "number",
+
       flex: 1,
+      editable: true,
     },
     {
       field: "quantity",
@@ -143,6 +146,7 @@ function InvLigne() {
       type: "number",
       description: "Qauntity of product in invoice",
       flex: 1,
+      editable: true,
     },
     {
       field: "cost",
@@ -151,6 +155,7 @@ function InvLigne() {
       description: "Cost",
       width: 200,
       flex: 1,
+
       renderCell: (params) =>
         `${products[params.row.productCode] * params.row.quantity}`,
     },
@@ -207,14 +212,20 @@ function InvLigne() {
   const [editStates, setEditStates] = useState({});
 
   const handleOpenEdit = (row) => {
-    setEditStates((prev) => ({ ...prev, [row.id]: true }));
+    setEditStates(() => ({ [row.id]: true }));
   };
   const handleCloseEdit = (row) => {
-    setEditStates((prev) => ({ ...prev, [row.id]: false }));
+    setEditStates(() => ({ [row.id]: false }));
   };
 
   const handleConfirmEdit = (row) => {
-    setEditStates((prev) => ({ ...prev, [row.id]: false }));
+    setEditStates(() => ({ [row.id]: false }));
+    const docReff = doc(db, "invLigne", row.id);
+    updateDoc(docReff, {
+      invoiceKey: row.invoiceKey,
+      productCode: row.productCode,
+      quantity: row.quantity,
+    }).then(() => {});
   };
 
   const handleDelete = async (id) => {
@@ -308,13 +319,13 @@ function InvLigne() {
 
       <div style={{ height: 400, width: "100%" }}>
         <DataGrid
-          rows={rows}
+          rows={invLigne}
           columns={columns}
           pageSize={5}
           rowsPerPageOptions={[5]}
-          components={{
-            Toolbar: GridToolbar,
-          }}
+          pagination
+          editMode="cell"
+          disableSelectionOnClick
         />
       </div>
     </Fragment>
