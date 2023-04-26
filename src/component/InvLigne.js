@@ -135,7 +135,6 @@ function InvLigne() {
       field: "productCode",
       headerName: "Product Code",
       width: 120,
-
       flex: 1,
       editable: true,
     },
