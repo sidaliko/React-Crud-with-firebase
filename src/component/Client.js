@@ -65,8 +65,7 @@ function Client() {
       headerName: "Client Number",
       type: Number,
       width: 120,
-      editable: (params) =>
-        editStates[params.row.id] !== false && params.field === "num",
+      editable: true,
 
       flex: 1,
     },
@@ -74,6 +73,7 @@ function Client() {
       field: "firstName",
       headerName: "First Name",
       width: 120,
+      editable: true,
 
       flex: 1,
     },
@@ -81,7 +81,7 @@ function Client() {
       field: "lastName",
       headerName: "Last Name",
       width: 100,
-
+      editable: true,
       flex: 1,
     },
 
@@ -91,6 +91,7 @@ function Client() {
       type: "number",
       description: "Age",
       width: 100,
+      editable: true,
 
       flex: 1,
     },
@@ -99,7 +100,7 @@ function Client() {
       headerName: "Gender",
       description: "Gender",
       width: 120,
-
+      editable: true,
       flex: 1,
     },
     {
