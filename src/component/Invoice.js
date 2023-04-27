@@ -28,6 +28,7 @@ function Invoice() {
   const [invoices, setInvoices] = useState([]);
   const [clients, setClients] = useState([]);
   const invoicesCollectionRef = collection(db, "invoices");
+  const clientsCollectionRef = collection(db, "clients");
 
   const [newKey, setNewKey] = useState("");
   const [newCost, setNewCost] = useState();
@@ -39,6 +40,14 @@ function Invoice() {
       setInvoices(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
     };
     getInvoices();
+  }, []);
+
+  useEffect(() => {
+    const getClients = async () => {
+      const data = await getDocs(clientsCollectionRef);
+      setClients(data.docs.map((doc) => doc.data().num));
+    };
+    getClients();
   }, []);
 
   const [selectedOption, setSelectedOption] = useState("");
